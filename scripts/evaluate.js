@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import "dotenv/config";
 import { readFile, writeFile } from "node:fs/promises";
 import { generateKit } from "../src/pipeline/index.js";
 

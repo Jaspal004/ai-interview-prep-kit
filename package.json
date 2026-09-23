@@ -17,6 +17,7 @@
     "concurrently": "^8.2.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dotenv": "^18.0.3",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "mongodb": "^6.8.0",
