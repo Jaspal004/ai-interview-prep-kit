@@ -11,7 +11,9 @@ import { validateKit } from "../src/pipeline/validate.js";
 const app = express();
 const port = Number(process.env.PORT || 4000);
 const webOrigin = process.env.WEB_ORIGIN || "http://localhost:3000";
+const isProduction = process.env.NODE_ENV === "production";
 
+app.set("trust proxy", 1);
 app.use(cors({ origin: webOrigin, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
@@ -21,8 +23,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: isProduction ? "none" : "lax",
+    secure: isProduction,
     maxAge: 1000 * 60 * 60 * 24 * 7
   }
 }));
