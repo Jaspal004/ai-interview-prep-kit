@@ -17,6 +17,11 @@ npm run evaluate -- --input cases.json --output kits.json
 
 The app prefers MongoDB for deployed or multi-session use. The JSON fallback exists so the reviewer can still run the evaluator and local UI from a clean clone without provisioning any external service.
 
+## Live Deployment
+
+- Frontend: https://ai-interview-prep-kit-og6p-g12mtczdc-jaspal04.vercel.app/
+- Backend health: https://ai-interview-prep-kit-tyfw.onrender.com/health
+
 ## Setup
 
 ```bash
