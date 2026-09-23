@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const QUESTION_CATEGORIES = ["technical", "behavioural", "system-design", "company-fit"];
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -244,6 +245,9 @@ function QuestionEditor({ kit, setKit, regenerate }) {
   function updateQuestion(id, patch) {
     setKit({ ...kit, questions: kit.questions.map((q) => q.id === id ? { ...q, ...patch, state: "edited" } : q) });
   }
+  function updateRequirementIds(id, value) {
+    updateQuestion(id, { requirement_ids: value.split(",").map((item) => item.trim()).filter(Boolean) });
+  }
   function move(index, delta) {
     const next = [...kit.questions];
     const target = index + delta;
@@ -252,26 +256,40 @@ function QuestionEditor({ kit, setKit, regenerate }) {
     setKit({ ...kit, questions: next });
   }
   function addQuestion() {
-    setKit({ ...kit, questions: [...kit.questions, { id: `q${kit.questions.length + 1}`, requirement_ids: [], category: "technical", prompt: "", answer_outline: "", difficulty: 1, state: "manual", pinned: true }] });
+    const id = nextId("q", kit.questions);
+    setKit({ ...kit, questions: [...kit.questions, { id, requirement_ids: [], category: "technical", prompt: "", answer_outline: "", difficulty: 1, state: "manual", pinned: true }] });
   }
   return <div className="space-y-4">
     <div className="flex justify-between"><button className="btn btn-secondary" onClick={addQuestion}>Add question</button></div>
-    {Object.entries(grouped).map(([category, questions]) => <div key={category} className="panel p-4">
+    {QUESTION_CATEGORIES.map((category) => {
+      const questions = grouped[category] || [];
+      return <div key={category} className="panel p-4">
       <Toolbar title={category} action={() => regenerate(`questions:${category}`)} />
+      {questions.length === 0 && <p className="text-sm text-stone-600">No questions in this category yet.</p>}
       {questions.map((q) => {
         const index = kit.questions.findIndex((item) => item.id === q.id);
         return <div key={q.id} className="mb-3 rounded-md border border-stone-200 p-3">
-          <div className="mb-2 flex flex-wrap gap-2">
-            <button className="btn btn-secondary" onClick={() => move(index, -1)}>Up</button>
-            <button className="btn btn-secondary" onClick={() => move(index, 1)}>Down</button>
-            <select className="field max-w-48" value={q.category} onChange={(e) => updateQuestion(q.id, { category: e.target.value })}><option>technical</option><option>behavioural</option><option>system-design</option><option>company-fit</option></select>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-md bg-stone-100 px-2 py-1 text-xs font-semibold text-stone-700">#{index + 1}</span>
+            <button className="btn btn-secondary" disabled={index === 0} onClick={() => move(index, -1)}>Move up</button>
+            <button className="btn btn-secondary" disabled={index === kit.questions.length - 1} onClick={() => move(index, 1)}>Move down</button>
+            <select className="field max-w-48" value={q.category} onChange={(e) => updateQuestion(q.id, { category: e.target.value })}>
+              {QUESTION_CATEGORIES.map((name) => <option key={name}>{name}</option>)}
+            </select>
+            <select className="field max-w-28" value={q.difficulty} onChange={(e) => updateQuestion(q.id, { difficulty: Number(e.target.value) })}>
+              <option value={1}>easy</option>
+              <option value={2}>medium</option>
+              <option value={3}>hard</option>
+            </select>
             <button className="btn btn-secondary" onClick={() => setKit({ ...kit, questions: kit.questions.filter((item) => item.id !== q.id) })}>Delete</button>
           </div>
+          <label className="mb-2 block text-xs font-semibold text-stone-600">Requirement ids<input className="field mt-1" value={(q.requirement_ids || []).join(", ")} onChange={(e) => updateRequirementIds(q.id, e.target.value)} /></label>
           <textarea className="field mb-2" value={q.prompt} onChange={(e) => updateQuestion(q.id, { prompt: e.target.value })} />
           <textarea className="field" value={q.answer_outline} onChange={(e) => updateQuestion(q.id, { answer_outline: e.target.value })} />
         </div>;
       })}
-    </div>)}
+    </div>;
+    })}
   </div>;
 }
 
@@ -281,8 +299,9 @@ function FlashcardEditor({ kit, setKit, regenerate }) {
   }
   return <div className="panel p-4">
     <Toolbar title="Flashcards" action={() => regenerate("flashcards")} />
-    <button className="btn btn-secondary mb-3" onClick={() => setKit({ ...kit, flashcards: [...kit.flashcards, { id: `f${kit.flashcards.length + 1}`, front: "", back: "", requirement_ids: [], state: "manual", pinned: true }] })}>Add flashcard</button>
+    <button className="btn btn-secondary mb-3" onClick={() => setKit({ ...kit, flashcards: [...kit.flashcards, { id: nextId("f", kit.flashcards), front: "", back: "", requirement_ids: [], state: "manual", pinned: true }] })}>Add flashcard</button>
     {kit.flashcards.map((card) => <div key={card.id} className="mb-3 rounded-md border border-stone-200 p-3">
+      <div className="mb-2 flex justify-end"><button className="btn btn-secondary" onClick={() => setKit({ ...kit, flashcards: kit.flashcards.filter((item) => item.id !== card.id) })}>Delete</button></div>
       <input className="field mb-2" value={card.front} onChange={(e) => update(card.id, { front: e.target.value })} />
       <textarea className="field" value={card.back} onChange={(e) => update(card.id, { back: e.target.value })} />
     </div>)}
@@ -335,6 +354,13 @@ function groupBy(items, key) {
     acc[item[key]].push(item);
     return acc;
   }, {});
+}
+
+function nextId(prefix, items) {
+  const used = new Set(items.map((item) => item.id));
+  let index = items.length + 1;
+  while (used.has(`${prefix}${index}`)) index += 1;
+  return `${prefix}${index}`;
 }
 
 async function api(path, options = {}) {
