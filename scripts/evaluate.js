@@ -10,7 +10,8 @@ if (!args.input || !args.output) {
   process.exit(1);
 }
 
-const cases = JSON.parse(await readFile(args.input, "utf8"));
+const inputText = (await readFile(args.input, "utf8")).replace(/^\uFEFF/, "");
+const cases = JSON.parse(inputText);
 if (!Array.isArray(cases)) {
   console.error("Input must be an array of cases");
   process.exit(1);
