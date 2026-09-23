@@ -1,0 +1,32 @@
+{
+  "name": "trao-ai-interview-prep-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node backend/server.js",
+    "dev:web": "next dev -p 3000",
+    "build": "next build",
+    "start": "concurrently \"node backend/server.js\" \"next start -p 3000\"",
+    "evaluate": "node scripts/evaluate.js",
+    "test": "node --test tests/pipeline.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "concurrently": "^8.2.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongodb": "^6.8.0",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6"
+  }
+}

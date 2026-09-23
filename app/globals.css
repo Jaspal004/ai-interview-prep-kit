@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #fbfaf7;
+  color: #18201d;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #2f6f5e;
+  outline-offset: 2px;
+}
+
+.field {
+  @apply w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm shadow-sm;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.btn-primary {
+  @apply bg-fern text-white hover:bg-[#26594d];
+}
+
+.btn-secondary {
+  @apply border border-stone-300 bg-white text-ink hover:bg-stone-50;
+}
+
+.panel {
+  @apply border-y border-stone-200 bg-white;
+}
